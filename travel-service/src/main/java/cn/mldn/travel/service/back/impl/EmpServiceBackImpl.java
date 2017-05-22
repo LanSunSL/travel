@@ -1,6 +1,7 @@
 package cn.mldn.travel.service.back.impl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import cn.mldn.travel.dao.IActionDAO;
+import cn.mldn.travel.dao.IDeptDAO;
 import cn.mldn.travel.dao.IEmpDAO;
 import cn.mldn.travel.dao.ILevelDAO;
 import cn.mldn.travel.dao.IRoleDAO;
@@ -25,7 +27,9 @@ public class EmpServiceBackImpl implements IEmpServiceBack {
 	private IActionDAO actionDAO;
 	@Resource
 	private ILevelDAO levelDAO;
-
+	@Resource
+	private IDeptDAO deptDAO;
+	
 	@Override
 	public Map<String, Object> get(String eid, String password) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -44,6 +48,28 @@ public class EmpServiceBackImpl implements IEmpServiceBack {
 		Map<String, Set<String>> map = new HashMap<String, Set<String>>();
 		map.put("allRoles", this.roleDAO.findAllIdByEmp(eid));
 		map.put("allActions", this.actionDAO.findAllIdByEmp(eid));
+		return map;
+	}
+
+	@Override
+	public List<Emp> list() {
+		return this.empDAO.findAll();
+	}
+
+	@Override
+	public boolean add(Emp vo) {
+		return this.empDAO.doCreate(vo);
+	}
+
+	@Override
+	public Map<String, Object> show(String eid) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		Emp emp = this.empDAO.findById(eid);
+		if (emp != null) {
+			map.put("level", this.levelDAO.findById(emp.getLid()));
+			map.put("dept", this.deptDAO.findById(emp.getDid()));	
+		}
+		map.put("emp", emp);
 		return map;
 	}
 

@@ -6,4 +6,8 @@
 		SELECT eid,lid,did,ename,sal,phone,password,photo,note,hiredate,ineid,locked
 		FROM emp WHERE eid=#{eid}	
 	</select>
+	<select id="findAll" resultType="Emp">
+		SELECT eid,lid,did,ename,sal,phone,password,photo,note,hiredate,ineid,locked
+		FROM emp
+	</select>
 </mapper>

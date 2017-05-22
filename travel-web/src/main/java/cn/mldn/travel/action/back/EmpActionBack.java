@@ -1,5 +1,9 @@
 package cn.mldn.travel.action.back;
 
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,20 +16,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import cn.mldn.travel.service.back.IDeptServiceBack;
+import cn.mldn.travel.service.back.IEmpServiceBack;
+import cn.mldn.travel.service.back.ILevelServiceBack;
 import cn.mldn.travel.vo.Emp;
 import cn.mldn.util.action.abs.AbstractBaseAction;
+import net.sf.json.JSONObject;
 
 @Controller
 @RequestMapping("/pages/back/admin/emp/*")
 public class EmpActionBack extends AbstractBaseAction {
 	private static final String FLAG = "雇员";
-
+	@Resource
+	private IEmpServiceBack empService;
+	@Resource
+	private IDeptServiceBack deptService;
+	@Resource
+	private ILevelServiceBack levelService;
+	
 	@RequestMapping("add_pre")
 	@RequiresUser
 	@RequiresRoles("emp")
 	@RequiresPermissions("emp:add")
 	public ModelAndView addPre() {
 		ModelAndView mav = new ModelAndView(super.getUrl("emp.add.page"));
+		mav.addObject("allDepts", this.deptService.list());
+		mav.addObject("allLevels", this.levelService.list());
 		return mav;
 	}
 
@@ -64,10 +80,17 @@ public class EmpActionBack extends AbstractBaseAction {
 
 	@RequestMapping("get")
 	@RequiresUser
-	@RequiresRoles({ "emp", "empshow" })
-	@RequiresPermissions({ "emp:get", "empshow:get" })
+	@RequiresRoles(value={ "emp", "empshow" }, logical = Logical.OR)
+	@RequiresPermissions(value = { "emp:get", "empshow:get"}, logical = Logical.OR) 
 	public ModelAndView get(String eid, HttpServletResponse response) {
-		super.print(response, null);
+		JSONObject obj = new JSONObject() ;
+		Map<String, Object> map = this.empService.show(eid);
+		Iterator<Map.Entry<String,Object>> iter = map.entrySet().iterator() ;
+		while (iter.hasNext()) {
+			Map.Entry<String, Object> me = iter.next() ;
+			obj.put(me.getKey(), me.getValue()) ;
+		}
+		super.print(response, obj);
 		return null;
 	}
 
@@ -77,6 +100,7 @@ public class EmpActionBack extends AbstractBaseAction {
 	@RequiresPermissions(value = { "emp:list", "empshow:list" }, logical = Logical.OR)
 	public ModelAndView list(String ids, HttpServletRequest request) {
 		ModelAndView mav = new ModelAndView(super.getUrl("emp.list.page"));
+		mav.addObject("allEmps", this.empService.list());
 		return mav;
 	}
 

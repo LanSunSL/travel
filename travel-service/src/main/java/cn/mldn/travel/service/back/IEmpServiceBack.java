@@ -1,7 +1,10 @@
 package cn.mldn.travel.service.back;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import cn.mldn.travel.vo.Emp;
 
 public interface IEmpServiceBack {
 	/**
@@ -22,4 +25,10 @@ public interface IEmpServiceBack {
 	 * 2、key = allActions、value = 所有的权限标记信息；<br>
 	 */
 	public Map<String,Set<String>> listRoleAndAction(String eid) ;
+	
+	public List<Emp> list();
+	
+	public boolean add(Emp vo);
+	public Map<String, Object> show(String eid);
+	
 }
